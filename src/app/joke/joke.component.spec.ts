@@ -6,7 +6,6 @@ import { DebugElement } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import 'rxjs/Rx';
 import { By } from '@angular/platform-browser';
-import { discardPeriodicTasks } from "@angular/core/testing";
 
 describe(`Component: JokeComponent`, () => {
   let component: JokeComponent;
@@ -52,7 +51,7 @@ describe(`Component: JokeComponent`, () => {
 
     fixture.detectChanges();
 
-    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
+    const jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
 
     expect(jokeParagraph.textContent).toEqual('FAKE JOKE');
 
@@ -62,14 +61,12 @@ describe(`Component: JokeComponent`, () => {
     spyOn(jokeService, 'getJoke')
       .and.returnValues(
       Observable.of('FAKE JOKE'),
-      Observable
-        .timer(1000)
-        .map(() => 'FAKE JOKE 2'));
+      Observable.timer(1000).map(() => 'FAKE JOKE 2'));
 
     fixture.detectChanges();
-    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
+    const jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
     expect(jokeParagraph.textContent).toEqual('FAKE JOKE');
-    let button = fixture.debugElement.query(By.css('button')).nativeElement;
+    const button = fixture.debugElement.query(By.css('button')).nativeElement;
     button.click();
     tick(1001);
     fixture.detectChanges();
@@ -83,10 +80,10 @@ describe(`Component: JokeComponent`, () => {
       Observable.of('FAKE JOKE 2').delay(2000));
 
     fixture.detectChanges();
-    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
+    const jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
     expect(jokeParagraph.textContent).toEqual('FAKE JOKE');
-    let button = fixture.debugElement.query(By.css('button')).nativeElement;
-    
+    const button = fixture.debugElement.query(By.css('button')).nativeElement;
+
     button.click();
 
     fixture.whenStable().then(() => {
@@ -98,15 +95,15 @@ describe(`Component: JokeComponent`, () => {
 
   it('should get next quote on click - with done', (done) => {
 
-    let spy = spyOn(jokeService, 'getJoke')
+    const spy = spyOn(jokeService, 'getJoke')
       .and.returnValues(
       Observable.of('FAKE JOKE'),
       Observable.of('FAKE JOKE 2'));
 
     fixture.detectChanges();
-    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
+    const jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
 
-    let button = fixture.debugElement.query(By.css('button')).nativeElement;
+    const button = fixture.debugElement.query(By.css('button')).nativeElement;
     button.click();
 
     spy.calls.mostRecent().returnValue
