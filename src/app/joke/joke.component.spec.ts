@@ -6,13 +6,12 @@ import { DebugElement } from '@angular/core';
 import { HttpModule } from '@angular/http';
 import 'rxjs/Rx';
 import { By } from '@angular/platform-browser';
+import { discardPeriodicTasks } from "@angular/core/testing";
 
 describe(`Component: JokeComponent`, () => {
-
   let component: JokeComponent;
   let jokeService: JokeService;
   let fixture: ComponentFixture<JokeComponent>;
-  let de: DebugElement;
 
   beforeEach(async(() => {
 
@@ -27,7 +26,6 @@ describe(`Component: JokeComponent`, () => {
     fixture = TestBed.createComponent(JokeComponent);
     component = fixture.componentInstance;
     jokeService = TestBed.get(JokeService);
-    de = fixture.debugElement;
 
   }));
 
@@ -54,9 +52,9 @@ describe(`Component: JokeComponent`, () => {
 
     fixture.detectChanges();
 
-    let el = de.query(By.css('p')).nativeElement;
+    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
 
-    expect(el.textContent).toEqual('FAKE JOKE');
+    expect(jokeParagraph.textContent).toEqual('FAKE JOKE');
 
   });
 
@@ -64,33 +62,38 @@ describe(`Component: JokeComponent`, () => {
     spyOn(jokeService, 'getJoke')
       .and.returnValues(
       Observable.of('FAKE JOKE'),
-      Observable.of('FAKE JOKE 2').timeout(2000));
+      Observable
+        .timer(1000)
+        .map(() => 'FAKE JOKE 2'));
 
     fixture.detectChanges();
-    let el = de.query(By.css('p')).nativeElement;
-    expect(el.textContent).toEqual('FAKE JOKE');
+    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
+    expect(jokeParagraph.textContent).toEqual('FAKE JOKE');
     let button = fixture.debugElement.query(By.css('button')).nativeElement;
     button.click();
+    tick(1001);
     fixture.detectChanges();
-    tick(3000);
-    expect(el.textContent).toEqual('FAKE JOKE 2');
+    expect(jokeParagraph.textContent).toEqual('FAKE JOKE 2');
   }));
 
   it(`should get next quote on click - with async`, async(() => {
     spyOn(jokeService, 'getJoke')
       .and.returnValues(
       Observable.of('FAKE JOKE'),
-      Observable.of('FAKE JOKE 2'));
+      Observable.of('FAKE JOKE 2').delay(2000));
 
     fixture.detectChanges();
-    let el = de.query(By.css('p')).nativeElement;
-    expect(el.textContent).toEqual('FAKE JOKE');
+    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
+    expect(jokeParagraph.textContent).toEqual('FAKE JOKE');
     let button = fixture.debugElement.query(By.css('button')).nativeElement;
+    
     button.click();
+
     fixture.whenStable().then(() => {
       fixture.detectChanges();
-      expect(el.textContent).toEqual('FAKE JOKE 2');
+      expect(jokeParagraph.textContent).toEqual('FAKE JOKE 2');
     });
+
   }));
 
   it('should get next quote on click - with done', (done) => {
@@ -101,7 +104,7 @@ describe(`Component: JokeComponent`, () => {
       Observable.of('FAKE JOKE 2'));
 
     fixture.detectChanges();
-    let el = de.query(By.css('p')).nativeElement;
+    let jokeParagraph = fixture.debugElement.query(By.css('p')).nativeElement;
 
     let button = fixture.debugElement.query(By.css('button')).nativeElement;
     button.click();
@@ -109,7 +112,7 @@ describe(`Component: JokeComponent`, () => {
     spy.calls.mostRecent().returnValue
       .subscribe(() => {
         fixture.detectChanges();
-        expect(el.textContent).toEqual('FAKE JOKE 2');
+        expect(jokeParagraph.textContent).toEqual('FAKE JOKE 2');
         done();
       });
   });
